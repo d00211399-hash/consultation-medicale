@@ -24,6 +24,8 @@ class User extends Authenticatable
         'password',
         'role',
         'statut',
+        'must_change_password',
+        'temp_password', // Ajout de l'attribut temp_password
     ];
 
     /**
@@ -46,6 +48,15 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'temp_password' => 'encrypted', // Assurez-vous que le mot de passe temporaire est également chiffré
         ];
+    }
+    public function patient()
+    {
+        return $this->hasOne(Patient::class, 'user_id');
+    }
+    public function medecin()
+    {
+        return $this->hasOne(Medecin::class, 'user_id');
     }
 }

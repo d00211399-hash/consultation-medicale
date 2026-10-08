@@ -14,5 +14,14 @@ class Patient extends Model
         'adresse',
         'telephone',
         'email',
+        'user_id',
     ];
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+    public function consultations()
+    {
+        return $this->hasMany(Consulter::class, 'patient_id', 'id');
+    }
 }

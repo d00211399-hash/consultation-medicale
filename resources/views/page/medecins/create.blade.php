@@ -14,56 +14,98 @@
     <div class="block-content block-content-full">
         <div class="row justify-content-center">
             <div class="card col-md-8">
-                <div class="card-header">
-                    <h4>créer le médecin</h4>
+                <div class="card-header text-center">
+                    <h5>créer le médecin</h5>
                 </div>
                 <div class="card-body">
-
                     <form id="form-medecin" action="{{ route('medecins.store') }}" method="POST">
                         @csrf
-
-                        <div class="row">
-                            <div class="mb-4 col-md-6">
-                                <label for="nom" class="form-label">Nom</label>
-                                <input type="text" class="form-control" name="nom" id="nom" required>
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <ul class="mb-0">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
                             </div>
-
-                            <div class="mb-4 col-md-6">
-                                <label for="prenom" class="form-label">Prénom</label>
-                                <input type="text" class="form-control" name="prenom" id="prenom" required>
+                        @endif
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3 mb-md-0">
+                                    <input class="form-control" id="nom" name="nom" type="text"
+                                        placeholder="Nom" value="{{ old('nom') }}" required />
+                                    <label for="nom">Nom</label>
+                                </div>
                             </div>
-
-                            <div class="mb-4 col-md-6">
-                                <label for="specialite" class="form-label">Spécialité</label>
-                                <input type="text" class="form-control" name="specialite" id="specialite" required>
-                            </div>
-
-                            <div class="mb-4 col-md-6">
-                                <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control" name="email" id="email" required>
-                            </div>
-
-                            <div class="mb-4 col-md-6">
-                                <label for="telephone" class="form-label">Téléphone</label>
-                                <input type="text" class="form-control" name="telephone" id="telephone" required>
-                            </div>
-
-                            <div class="mb-4 col-md-6">
-                                <label for="statut" class="form-label">Statut</label>
-                                <select class="form-select" name="statut" id="statut">
-                                    <option value="actif">actif</option>
-                                    <option value="inactif">inactif</option>
-                                </select>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input class="form-control" id="prenom" name="prenom" type="text"
+                                        placeholder="Prénom" value="{{ old('prenom') }}" required />
+                                    <label for="prenom">Prénom</label>
+                                </div>
                             </div>
                         </div>
-
-
-                        <div class="d-flex gap-2">
-                            <button type="submit" id="btn-submit" class="btn btn-success ">
-                                <span class="spinner-border spinner-border-sm d-none" role="status"></span>
-                                Envoyer
-                            </button>
-                            <a href="{{ route('medecins.index') }}" class="btn btn-alt-secondary">Retour</a>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3 mb-md-0">
+                                    <input class="form-control" id="email" name="email" type="email"
+                                        placeholder="Nom" value="{{ old('email') }}" required />
+                                    <label for="email">Email</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input class="form-control" id="specialite" type="text" name="specialite"
+                                        placeholder="specialite" value="{{ old('specialite') }}" required />
+                                    <label for="specialite">Spécialité</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3 mb-md-0">
+                                    <input class="form-control" id="telephone" name="telephone" type="text"
+                                        placeholder="Nom" value="{{ old('telephone') }}" required />
+                                    <label for="telephone">Téléphone</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <select class="form-select" id="statut" name="statut" required>
+                                        <option value="">choisir</option>
+                                        <option value="actif" @selected(old('statut') === 'actif')>Actif
+                                        </option>
+                                        <option value="inactif" @selected(old('statut') === 'inactif')>Inactif
+                                        </option>
+                                    </select>
+                                    <label for="sexe">statut</label>
+                                </div>
+                            </div>
+                        </div>
+  <!--                      <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3 mb-md-0">
+                                    <input class="form-control" id="password" name="password" type="password"
+                                        placeholder="Mot de passe" required />
+                                    <label for="password">Mot de passe (8 caractères minimum)</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input class="form-control" id="password_confirmation" name="password_confirmation"
+                                        type="password" placeholder="Confirmer le mot de passe" required />
+                                    <label for="password_confirmation">Confirmer le mot de
+                                        passe</label>
+                                </div>
+                            </div>
+                        </div> -->
+                        <div class="row">
+                            <div class="col-6 text-center">
+                                <button type="submit" class="btn btn-success">Se connecter</button>
+                            </div>
+                            <div class="col-6 text-center">
+                                <a href="{{ route('medecins.index') }}" class="btn btn-alt-secondary">Retour</a>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -73,12 +115,12 @@
 @endsection
 
 @section('JS')
-   <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="assets/js/lib/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/oneui.app.min.js"></script>
-
-    <script>
+   <!-- <script>
         $(document).ready(function() {
             $('#form-medecin').on('submit', function(e) {
                 e.preventDefault();
@@ -99,8 +141,8 @@
                     dataType: 'json',
                     success: function(response) {
                         $responseMsg.addClass('alert alert-success')
-                                    .html(response.message)
-                                    .fadeIn();
+                            .html(response.message)
+                            .fadeIn();
                         $form[0].reset();
 
                         setTimeout(() => {

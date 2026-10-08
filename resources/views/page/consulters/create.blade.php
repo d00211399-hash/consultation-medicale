@@ -28,7 +28,7 @@
 @endsection
 @section('content')
    <div class="block-content block-content-full ">
-      <h1>la création de la liste des consultations</h1>
+      <h1>crée une consutation</h1>
 
         <form class="js-validation" action="{{ route('consulters.store') }}" method="POST">
             @csrf
@@ -52,7 +52,7 @@
                     @endforeach
                 </select>
             </div>
-            <div  class="mb-4 col-8">
+            <div class="mb-4 col-8">
                 <label for="patient" class="form-label">Patient</label>
                 <select name="patient_id">
                     <option value="">choisir un patiemt</option>

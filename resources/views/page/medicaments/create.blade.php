@@ -89,4 +89,6 @@
             </div>
         </div>
     </div>
+    {{--fonction pour calculer l'âge d'une personne à partir de sa date de naissance --}}
+    <p>
 @endsection

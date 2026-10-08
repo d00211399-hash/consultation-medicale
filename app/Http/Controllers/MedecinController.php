@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use Illuminate\Support\Str;
 use App\Models\Medecin;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class MedecinController extends Controller
 {
@@ -13,7 +17,12 @@ class MedecinController extends Controller
     public function index() : \Illuminate\Contracts\View\View
     {
         $medecins = Medecin::all(); // Récupérer les médecins depuis la base de données
-        return view('page.medecins.index', compact('medecins'));
+
+        $comptesEnAttente = User::where('role', 'medecin')
+        ->where('must_change_password', true)
+        ->whereNotNull('temp_password')
+        ->get();
+        return view('page.medecins.index', compact('medecins', 'comptesEnAttente'));
     }
 
     /**
@@ -27,32 +36,57 @@ class MedecinController extends Controller
     /**
      * Enregistre un nouveau médecin dans la base de données.
      */
-    public function store(Request $request)
-    {
 
-        $validated = $request->validate([
-            'nom'        => 'required|string|max:20',
-            'prenom'     => 'required|string|max:30',
-            'specialite' => 'required|string|max:30',
-            'email'      => 'required|email|string|unique:medecins,email',
-            'telephone'  => 'required|string|max:20',
-            'statut'     => 'required|string|in:actif,inactif',
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'nom'        => 'required|string|max:255',
+        'prenom'     => 'required|string|max:255',
+        'specialite' => 'required|string|max:255',
+        'email'      => 'required|email|max:255|unique:users,email|unique:medecins,email',
+        'telephone'  => 'required|string|max:20',
+        'statut'     => 'required|string|in:actif,inactif',
+        // 'password' supprimé
+    ]);
+
+    $lettre = strtoupper(substr($validated['nom'], 0, 2));
+    $numero = Medecin::count() + 1;
+
+   do {
+       $matricule = 'MED' . str_pad($numero, 3, '0', STR_PAD_LEFT) . $lettre . rand(10, 99);
+     $numero++;
+    } while (Medecin::where('matricule', $matricule)->exists());
+
+    $password = Str::random(8);
+
+    DB::transaction(function () use ($validated, $matricule, $password) {
+        $user = User::create([
+            'name'                 => $validated['prenom'] . ' ' . $validated['nom'],
+            'email'                => $validated['email'],
+            'password'             => Hash::make($password),
+            'role'                 => 'medecin',
+            'statut'               => $validated['statut'],
+            'must_change_password' => true,
+            'temp_password'        => $password, // Stocker le mot de passe temporaire en clair
         ]);
 
-        $lastId = Medecin::count() + 1;
-        $lettre = strtoupper(substr($validated['nom'], 0, 2));
-        $chiffre = rand(10, 99);
-        $matricule = 'MED' . str_pad($lastId, 3, '0', STR_PAD_LEFT) . $lettre . $chiffre;
-        $validated['matricule'] = $matricule;
+        Medecin::create([
+            'matricule'  => $matricule,
+            'nom'        => $validated['nom'],
+            'prenom'     => $validated['prenom'],
+            'specialite' => $validated['specialite'],
+            'email'      => $validated['email'],
+            'telephone'  => $validated['telephone'],
+            'statut'     => $validated['statut'],
+            'user_id'    => $user->id,
+        ]);
+    });
 
-        Medecin::create($validated);
-
-        return response()->json([
-            'message' => 'Médecin ' . $validated['nom'] . ' ajouté avec succès avec le matricule ' . $matricule
-        ], 200);
-
-    }
-
+    return redirect()->route('medecins.index')
+        ->with('success', 'Compte médecin créé avec succès.')
+        ->with('generated_email', $validated['email'])
+        ->with('generated_password', $password);
+}
     /**
      * Affiche le médecin spécifié.
      */

@@ -34,7 +34,7 @@
         <div class="row justify-content-center">
             <div class="card col-md-8">
                 <div class="card-header" text-center>
-                    <h5 class="text-center">la création d'un patient</h5>
+                    <h5 class="text-center"> crée un patient</h5>
                 </div>
                 <div class="card-body">
                     <form class="js-validation" action="{{ route('patients.store') }}" method="POST">
@@ -76,9 +76,9 @@
                             <div class="mb-4 col-md-6">
                                 <label for="prenom" class="">sexe</label>
                                 <select name="sexe"class="">
-                                    <option value="homme">Homme</option>
-                                    <option value="femme">Femme</option>
-                                    <option value="autre">Autre</option>
+                                    <option value="M">Homme</option>
+                                    <option value="F">Femme</option>
+                                    <option value="A">Autre</option>
                                 </select>
                             </div>
                         </div>
