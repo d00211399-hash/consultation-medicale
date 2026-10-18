@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
+
 class MedecinController extends Controller
 {
     /**
@@ -130,6 +131,10 @@ public function store(Request $request)
      */
     public function destroy(string $matricule)
     {
+
+        if (auth()->user()->role !== 'admin'){
+            return redirect()->route('medecins.index')->with('error', "Vous ne pouvez pa supprimer ce médecin,seul l'administrateur peut le faire");
+        }
         $medecin = Medecin::findOrFail($matricule);
         $medecin->delete();
         return redirect()->route('medecins.index')->with('success','le médecin a été supprimé');

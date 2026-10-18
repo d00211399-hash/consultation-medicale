@@ -169,15 +169,6 @@
                     </form>
                 </li>
             </ul>
-
-            <!-- Numéros d'urgence (masqué quand le menu est réduit) -->
-            <div class="smini-hide alert alert-danger border-0 mt-4 mb-0" role="alert">
-                <p class="fw-semibold mb-2">
-                    <i class="fa fa-phone-alt me-1"></i> Urgences
-                </p>
-                <a class="d-block link-danger fs-sm fw-medium mb-1" href="tel:+2250719115186">+225 07 19 11 51 86</a>
-                <a class="d-block link-danger fs-sm fw-medium" href="tel:+2250595013089">+225 05 95 01 30 89</a>
-            </div>
         </div>
         <!-- END Side Navigation -->
     </div>

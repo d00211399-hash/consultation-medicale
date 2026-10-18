@@ -142,18 +142,20 @@
                     <span class="fw-semibold">Identifiants à transmettre</span>
                     <span class="badge rounded-pill text-bg-warning ms-auto">{{ $comptesEnAttente->count() }}</span>
                 </div>
-                <div class="table-responsive">
+                <div class="table-responsive row">
                     <table class="table table-sm align-middle mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>Email</th>
-                                <th>Mot de passe temporaire</th>
+                                <th class="col-3">Nom</th>
+                                <th class="col-3">Email</th>
+                                <th class="col-3">Mot de passe temporaire</th>
                                 <th class="text-end">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($comptesEnAttente as $compte)
                                 <tr>
+                                    <td>{{ $compte->medecin->nom ?? 'N/A' }}</td>
                                     <td>{{ $compte->email }}</td>
                                     <td><code>{{ $compte->temp_password }}</code></td>
                                     <td class="text-end">

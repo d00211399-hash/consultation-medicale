@@ -116,29 +116,12 @@
     {{-- Bannière d'accueil --}}
     <div class="dash-hero mb-4">
         <div class="dash-hero-body">
-            <p class="mb-2 opacity-75">{{ now()->locale('fr')->translatedFormat('l j F Y') }}</p>
-            <h1 class="text-white mb-2">Bonjour{{ auth()->check() ? ', ' . auth()->user()->name : '' }}</h1>
+            <h1 class="text-dark mb-2">Salut{{ auth()->check() ? ', ' . auth()->user()->name : '' }}</h1>
             <p class="fs-5 mb-4 opacity-90">Suivez vos patients, vos médecins et vos consultations depuis un seul endroit.</p>
             <a href="{{ $lien('consultations.index') }}" class="btn btn-light me-2">Voir les consultations</a>
             <a href="{{ $lien('patients.index') }}" class="btn btn-outline-light">Liste des patients</a>
         </div>
     </div>
-
-    {{-- Numéros d'urgence --}}
-    <div class="dash-urgence shadow-sm p-3 p-md-4 mb-4 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
-        <div class="d-flex align-items-center gap-3">
-            <span class="dash-pulse"></span>
-            <div>
-                <h2 class="h5 mb-0">Numéros d'urgence</h2>
-                <small class="text-muted">Disponibles à tout moment</small>
-            </div>
-        </div>
-        <div class="d-flex flex-wrap gap-2">
-            <a class="btn btn-danger" href="tel:+2250719115186">+225 07 19 11 51 86</a>
-            <a class="btn btn-outline-danger" href="tel:+2250595013089">+225 05 95 01 30 89</a>
-        </div>
-    </div>
-
     {{-- Statistiques --}}
     <div class="row g-3 mb-4">
         <div class="col-6 col-xl-3">

@@ -111,6 +111,10 @@ public function store(Request $request)
      */
     public function destroy(string $id)
     {
+        if (auth()->user()->role !== 'admin'){
+            return redirect()->route('medecins.index')->with('error', "Vous ne pouvez pa supprimer ce patient,seul l'administrateur peut le faire");
+        }
+
         $patient = Patient::findOrFail($id);
         $patient->delete();
         return redirect()->route('patients.index')->with('success','le Patient est supprimé');
