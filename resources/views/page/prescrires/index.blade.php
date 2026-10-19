@@ -26,9 +26,12 @@
     <script src="{{ asset('assets/js/plugins/datatables-buttons/buttons.print.min.js') }}"></script>
     <script src="{{ asset('assets/js/plugins/datatables-buttons/buttons.html5.min.js') }}"></script>
 
-    <!-- Traduction française de DataTables (avant l'initialisation de la page) -->
+    <!-- Réglages DataTables : traduction française + tableau adaptatif (avant l'initialisation de la page) -->
     <script>
         $.extend(true, $.fn.dataTable.defaults, {
+            // Les colonnes les moins importantes passent dans une ligne de détail sur petit écran
+            responsive: true,
+            autoWidth: false,
             order: [[0, 'desc']],
             language: {
                 search: '',
@@ -96,12 +99,13 @@
             </div>
         @endif
 
-        {{-- Statistiques --}}
+        {{-- Statistiques : 2 colonnes sur téléphone, 4 sur grand écran.
+             Sur téléphone l'icône passe au-dessus du chiffre (flex-column), puis à gauche dès flex-sm-row. --}}
         <div class="row g-3 mb-4">
             <div class="col-6 col-xl-3">
                 <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body d-flex align-items-center gap-3">
-                        <div class="d-flex rounded-3 p-3 fs-4 bg-primary-lighter text-primary"><i class="fa fa-file-prescription"></i></div>
+                    <div class="card-body d-flex flex-column flex-sm-row align-items-center text-center text-sm-start gap-2 gap-sm-3">
+                        <div class="d-flex flex-shrink-0 rounded-3 p-3 fs-4 bg-primary-lighter text-primary"><i class="fa fa-file-prescription"></i></div>
                         <div>
                             <div class="fs-3 fw-bold">{{ $total }}</div>
                             <div class="text-muted">Prescriptions</div>
@@ -111,8 +115,8 @@
             </div>
             <div class="col-6 col-xl-3">
                 <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body d-flex align-items-center gap-3">
-                        <div class="d-flex rounded-3 p-3 fs-4 bg-success-lighter text-success"><i class="fa fa-pills"></i></div>
+                    <div class="card-body d-flex flex-column flex-sm-row align-items-center text-center text-sm-start gap-2 gap-sm-3">
+                        <div class="d-flex flex-shrink-0 rounded-3 p-3 fs-4 bg-success-lighter text-success"><i class="fa fa-pills"></i></div>
                         <div>
                             <div class="fs-3 fw-bold">{{ $nbMedicaments }}</div>
                             <div class="text-muted">Médicaments prescrits</div>
@@ -122,8 +126,8 @@
             </div>
             <div class="col-6 col-xl-3">
                 <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body d-flex align-items-center gap-3">
-                        <div class="d-flex rounded-3 p-3 fs-4 bg-warning-lighter text-warning"><i class="fa fa-notes-medical"></i></div>
+                    <div class="card-body d-flex flex-column flex-sm-row align-items-center text-center text-sm-start gap-2 gap-sm-3">
+                        <div class="d-flex flex-shrink-0 rounded-3 p-3 fs-4 bg-warning-lighter text-warning"><i class="fa fa-notes-medical"></i></div>
                         <div>
                             <div class="fs-3 fw-bold">{{ $nbConsultations }}</div>
                             <div class="text-muted">Consultations concernées</div>
@@ -133,9 +137,10 @@
             </div>
             <div class="col-6 col-xl-3">
                 <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body d-flex align-items-center gap-3">
-                        <div class="d-flex rounded-3 p-3 fs-4 bg-danger-lighter text-danger"><i class="fa fa-star"></i></div>
-                        <div class="overflow-hidden">
+                    <div class="card-body d-flex flex-column flex-sm-row align-items-center text-center text-sm-start gap-2 gap-sm-3">
+                        <div class="d-flex flex-shrink-0 rounded-3 p-3 fs-4 bg-danger-lighter text-danger"><i class="fa fa-star"></i></div>
+                        {{-- mw-100 + overflow-hidden : le nom long est coupé (text-truncate) au lieu de déborder --}}
+                        <div class="mw-100 overflow-hidden">
                             <div class="fs-5 fw-bold text-truncate">{{ $plusPrescrit ?? '—' }}</div>
                             <div class="text-muted">Le plus prescrit</div>
                         </div>
@@ -150,20 +155,23 @@
                 <h3 class="block-title">Liste des prescriptions</h3>
                 <div class="block-options">
                     <a href="{{ route('prescrires.create') }}" class="btn btn-sm btn-primary">
-                        <i class="fa fa-plus me-1"></i> Nouvelle prescription
+                        <i class="fa fa-plus me-1"></i>
+                        <span class="d-none d-sm-inline">Nouvelle prescription</span>
+                        <span class="d-sm-none">Nouvelle</span>
                     </a>
                 </div>
             </div>
             <div class="block-content block-content-full overflow-x-auto">
-                <table class="table table-hover table-vcenter js-dataTable-full">
+                {{-- data-priority : plus le nombre est petit, plus la colonne reste visible longtemps --}}
+                <table class="table table-hover table-vcenter js-dataTable-full dt-responsive w-100">
                     <thead>
                         <tr>
-                            <th class="text-center">N°</th>
-                            <th>Médicament</th>
-                            <th>Consultation</th>
-                            <th>Posologie</th>
-                            <th class="text-center">Durée</th>
-                            <th class="text-center" data-orderable="false" data-searchable="false">Actions</th>
+                            <th class="text-center" data-priority="6">N°</th>
+                            <th data-priority="1">Médicament</th>
+                            <th data-priority="5">Consultation</th>
+                            <th data-priority="3">Posologie</th>
+                            <th class="text-center" data-priority="4">Durée</th>
+                            <th class="text-center" data-priority="2" data-orderable="false" data-searchable="false">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -215,16 +223,18 @@
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    <div class="d-flex justify-content-center gap-1">
+                                    <div class="d-flex flex-wrap justify-content-center gap-1">
                                         @if ($routeShow)
                                             <a href="{{ route('prescrires.show', $prescrire->id) }}"
-                                                class="btn btn-sm btn-alt-info" data-bs-toggle="tooltip" title="Détail">
+                                                class="btn btn-sm btn-alt-info" data-bs-toggle="tooltip" title="Détail"
+                                                aria-label="Détail">
                                                 <i class="fa fa-fw fa-eye"></i>
                                             </a>
                                         @endif
 
                                         <a href="{{ route('prescrires.edit', $prescrire->id) }}"
-                                            class="btn btn-sm btn-alt-success" data-bs-toggle="tooltip" title="Modifier">
+                                            class="btn btn-sm btn-alt-success" data-bs-toggle="tooltip" title="Modifier"
+                                            aria-label="Modifier">
                                             <i class="fa fa-fw fa-edit"></i>
                                         </a>
 
@@ -234,7 +244,7 @@
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-sm btn-alt-danger"
-                                                    data-bs-toggle="tooltip" title="Supprimer">
+                                                    data-bs-toggle="tooltip" title="Supprimer" aria-label="Supprimer">
                                                     <i class="fa fa-fw fa-trash"></i>
                                                 </button>
                                             </form>
