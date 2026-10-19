@@ -9,6 +9,41 @@
     <link rel="stylesheet" href="{{ asset('assets/js/plugins/datatables-responsive-bs5/css/responsive.bootstrap5.min.css') }}">
     <link rel="stylesheet" id="css-main" href="{{ asset('assets/css/oneui.min.css') }}">
     <script src="{{ asset('assets/js/setTheme.js') }}"></script>
+
+    <style>
+        /* ---------- Statistiques ---------- */
+        .pat-stat .card-body { min-width: 0; }
+        .pat-stat .pat-icon { flex-shrink: 0; }
+        .pat-stat .fs-3 { font-size: clamp(1.25rem, 3vw, 1.75rem) !important; }
+
+        /* Téléphone : icône au-dessus du chiffre pour que les libellés tiennent */
+        @media (max-width: 575.98px) {
+            .pat-stat .card-body {
+                flex-direction: column;
+                text-align: center;
+                gap: .5rem !important;
+            }
+            .pat-stat .pat-icon { padding: .6rem !important; font-size: 1.1rem !important; }
+            .pat-stat .text-muted { font-size: .8rem; }
+        }
+
+        /* ---------- Boutons d'action ---------- */
+        .pat-actions { flex-wrap: wrap; }
+        /* Écrans tactiles : cibles plus grandes pour le doigt */
+        @media (pointer: coarse) {
+            .pat-actions .btn { min-width: 40px; min-height: 40px; }
+        }
+
+        /* ---------- Tableau DataTables sur petit écran ---------- */
+        @media (max-width: 575.98px) {
+            .dt-search, .dataTables_filter { width: 100%; }
+            .dt-search input, .dataTables_filter input {
+                width: 100% !important;
+                margin-left: 0 !important;
+            }
+            .pagination { flex-wrap: wrap; justify-content: center; }
+        }
+    </style>
 @endsection
 
 @section('js')
@@ -26,9 +61,12 @@
     <script src="{{ asset('assets/js/plugins/datatables-buttons/buttons.print.min.js') }}"></script>
     <script src="{{ asset('assets/js/plugins/datatables-buttons/buttons.html5.min.js') }}"></script>
 
-    <!-- Traduction française de DataTables (avant l'initialisation de la page) -->
+    <!-- Réglages DataTables : traduction française + tableau adaptatif (avant l'initialisation de la page) -->
     <script>
         $.extend(true, $.fn.dataTable.defaults, {
+            // Les colonnes les moins importantes passent dans une ligne de détail sur petit écran
+            responsive: true,
+            autoWidth: false,
             language: {
                 search: '',
                 searchPlaceholder: 'Rechercher un patient…',
@@ -94,12 +132,12 @@
             </div>
         @endif
 
-        {{-- Statistiques --}}
+        {{-- Statistiques : 2 colonnes sur téléphone, 4 sur grand écran --}}
         <div class="row g-3 mb-4">
             <div class="col-6 col-xl-3">
-                <div class="card border-0 shadow-sm h-100">
+                <div class="card pat-stat border-0 shadow-sm h-100">
                     <div class="card-body d-flex align-items-center gap-3">
-                        <div class="d-flex rounded-3 p-3 fs-4 bg-primary-lighter text-primary"><i class="fa fa-users"></i></div>
+                        <div class="pat-icon d-flex rounded-3 p-3 fs-4 bg-primary-lighter text-primary"><i class="fa fa-users"></i></div>
                         <div>
                             <div class="fs-3 fw-bold">{{ $total }}</div>
                             <div class="text-muted">Patients</div>
@@ -108,9 +146,9 @@
                 </div>
             </div>
             <div class="col-6 col-xl-3">
-                <div class="card border-0 shadow-sm h-100">
+                <div class="card pat-stat border-0 shadow-sm h-100">
                     <div class="card-body d-flex align-items-center gap-3">
-                        <div class="d-flex rounded-3 p-3 fs-4 bg-info-lighter text-info"><i class="fa fa-mars"></i></div>
+                        <div class="pat-icon d-flex rounded-3 p-3 fs-4 bg-info-lighter text-info"><i class="fa fa-mars"></i></div>
                         <div>
                             <div class="fs-3 fw-bold">{{ $hommes }}</div>
                             <div class="text-muted">Hommes</div>
@@ -119,9 +157,9 @@
                 </div>
             </div>
             <div class="col-6 col-xl-3">
-                <div class="card border-0 shadow-sm h-100">
+                <div class="card pat-stat border-0 shadow-sm h-100">
                     <div class="card-body d-flex align-items-center gap-3">
-                        <div class="d-flex rounded-3 p-3 fs-4 bg-danger-lighter text-danger"><i class="fa fa-venus"></i></div>
+                        <div class="pat-icon d-flex rounded-3 p-3 fs-4 bg-danger-lighter text-danger"><i class="fa fa-venus"></i></div>
                         <div>
                             <div class="fs-3 fw-bold">{{ $femmes }}</div>
                             <div class="text-muted">Femmes</div>
@@ -130,9 +168,9 @@
                 </div>
             </div>
             <div class="col-6 col-xl-3">
-                <div class="card border-0 shadow-sm h-100">
+                <div class="card pat-stat border-0 shadow-sm h-100">
                     <div class="card-body d-flex align-items-center gap-3">
-                        <div class="d-flex rounded-3 p-3 fs-4 bg-warning-lighter text-warning"><i class="fa fa-birthday-cake"></i></div>
+                        <div class="pat-icon d-flex rounded-3 p-3 fs-4 bg-warning-lighter text-warning"><i class="fa fa-birthday-cake"></i></div>
                         <div>
                             <div class="fs-3 fw-bold">{{ $ageMoyen }}</div>
                             <div class="text-muted">Âge moyen</div>
@@ -162,10 +200,10 @@
                         <tbody>
                             @foreach ($comptesEnAttente as $compte)
                                 <tr>
-                                    <td>{{ $compte->email }}</td>
+                                    <td class="text-break">{{ $compte->email }}</td>
                                     <td><code>{{ $compte->temp_password }}</code></td>
                                     <td class="text-end">
-                                        <button type="button" class="btn btn-sm btn-alt-secondary"
+                                        <button type="button" class="btn btn-sm btn-alt-secondary text-nowrap"
                                             data-texte="Email : {{ $compte->email }}&#10;Mot de passe : {{ $compte->temp_password }}"
                                             onclick="navigator.clipboard.writeText(this.dataset.texte).then(() => { this.innerHTML = '<i class=&quot;fa fa-check me-1&quot;></i> Copié'; })">
                                             <i class="fa fa-copy me-1"></i> Copier
@@ -185,21 +223,24 @@
                 <h3 class="block-title">Liste des patients</h3>
                 <div class="block-options">
                     <a href="{{ route('patients.create') }}" class="btn btn-sm btn-primary">
-                        <i class="fa fa-plus me-1"></i> Ajouter un patient
+                        <i class="fa fa-plus me-1"></i>
+                        <span class="d-none d-sm-inline">Ajouter un patient</span>
+                        <span class="d-sm-none">Ajouter</span>
                     </a>
                 </div>
             </div>
             <div class="block-content block-content-full overflow-x-auto">
-                <table class="table table-hover table-vcenter js-dataTable-full">
+                {{-- data-priority : plus le nombre est petit, plus la colonne reste visible longtemps --}}
+                <table class="table table-hover table-vcenter js-dataTable-full dt-responsive w-100">
                     <thead>
                         <tr>
-                            <th class="text-center">ID</th>
-                            <th>Patient</th>
-                            <th class="text-center">Sexe</th>
-                            <th>Naissance</th>
-                            <th>Téléphone</th>
-                            <th>Adresse</th>
-                            <th class="text-center" data-orderable="false" data-searchable="false">Actions</th>
+                            <th class="text-center" data-priority="6">ID</th>
+                            <th data-priority="1">Patient</th>
+                            <th class="text-center" data-priority="5">Sexe</th>
+                            <th data-priority="4">Naissance</th>
+                            <th data-priority="3">Téléphone</th>
+                            <th data-priority="7">Adresse</th>
+                            <th class="text-center" data-priority="2" data-orderable="false" data-searchable="false">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -217,7 +258,7 @@
                                 <td>
                                     <div class="fw-semibold">{{ $patient->nom }} {{ $patient->prenom }}</div>
                                     @if ($patient->email)
-                                        <a class="fs-sm text-muted text-decoration-none" href="mailto:{{ $patient->email }}">
+                                        <a class="fs-sm text-muted text-decoration-none text-break" href="mailto:{{ $patient->email }}">
                                             {{ $patient->email }}
                                         </a>
                                     @endif
@@ -244,16 +285,18 @@
                                 </td>
                                 <td>{{ $patient->adresse ?: '—' }}</td>
                                 <td class="text-center">
-                                    <div class="d-flex justify-content-center gap-1">
+                                    <div class="pat-actions d-flex justify-content-center gap-1">
                                         @if ($routeShow)
                                             <a href="{{ route('patients.show', $patient->id) }}"
-                                                class="btn btn-sm btn-alt-info" data-bs-toggle="tooltip" title="Détail">
+                                                class="btn btn-sm btn-alt-info" data-bs-toggle="tooltip" title="Détail"
+                                                aria-label="Détail">
                                                 <i class="fa fa-fw fa-eye"></i>
                                             </a>
                                         @endif
 
                                         <a href="{{ route('patients.edit', $patient->id) }}"
-                                            class="btn btn-sm btn-alt-success" data-bs-toggle="tooltip" title="Modifier">
+                                            class="btn btn-sm btn-alt-success" data-bs-toggle="tooltip" title="Modifier"
+                                            aria-label="Modifier">
                                             <i class="fa fa-fw fa-edit"></i>
                                         </a>
 
@@ -262,7 +305,8 @@
                                                 onsubmit="return confirm('Générer un nouveau mot de passe pour ce compte ?')">
                                                 @csrf
                                                 <button type="submit" class="btn btn-sm btn-alt-warning"
-                                                    data-bs-toggle="tooltip" title="Réinitialiser le mot de passe">
+                                                    data-bs-toggle="tooltip" title="Réinitialiser le mot de passe"
+                                                    aria-label="Réinitialiser le mot de passe">
                                                     <i class="fa fa-fw fa-key"></i>
                                                 </button>
                                             </form>
@@ -273,7 +317,7 @@
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-alt-danger"
-                                                data-bs-toggle="tooltip" title="Supprimer">
+                                                data-bs-toggle="tooltip" title="Supprimer" aria-label="Supprimer">
                                                 <i class="fa fa-fw fa-trash"></i>
                                             </button>
                                         </form>
