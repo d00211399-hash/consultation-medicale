@@ -15,4 +15,4 @@ COPY . .
 RUN composer install --no-dev --optimize-autoloader --no-interaction \
     && chown -R www-data:www-data storage bootstrap/cache
 
-CMD php artisan config:cache && php artisan migrate --force && apache2-foreground
+CMD php artisan migrate --force && php artisan db:seed --class=AdminSeeder --force && php artisan config:cache && apache2-foreground
