@@ -26,9 +26,12 @@
     <script src="{{ asset('assets/js/plugins/datatables-buttons/buttons.print.min.js') }}"></script>
     <script src="{{ asset('assets/js/plugins/datatables-buttons/buttons.html5.min.js') }}"></script>
 
-    <!-- Traduction française de DataTables (avant l'initialisation de la page) -->
+    <!-- Réglages DataTables : traduction française + tableau adaptatif (avant l'initialisation de la page) -->
     <script>
         $.extend(true, $.fn.dataTable.defaults, {
+            // Les colonnes les moins importantes passent dans une ligne de détail sur petit écran
+            responsive: true,
+            autoWidth: false,
             language: {
                 search: '',
                 searchPlaceholder: 'Rechercher un médicament…',
@@ -99,12 +102,13 @@
             </div>
         @endif
 
-        {{-- Statistiques --}}
+        {{-- Statistiques : 2 colonnes sur téléphone, 4 sur grand écran.
+             Sur téléphone l'icône passe au-dessus du chiffre (flex-column), puis à gauche dès flex-sm-row. --}}
         <div class="row g-3 mb-4">
             <div class="col-6 col-xl-3">
                 <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body d-flex align-items-center gap-3">
-                        <div class="d-flex rounded-3 p-3 fs-4 bg-primary-lighter text-primary"><i class="fa fa-pills"></i></div>
+                    <div class="card-body d-flex flex-column flex-sm-row align-items-center text-center text-sm-start gap-2 gap-sm-3">
+                        <div class="d-flex flex-shrink-0 rounded-3 p-3 fs-4 bg-primary-lighter text-primary"><i class="fa fa-pills"></i></div>
                         <div>
                             <div class="fs-3 fw-bold">{{ $total }}</div>
                             <div class="text-muted">Médicaments</div>
@@ -114,8 +118,8 @@
             </div>
             <div class="col-6 col-xl-3">
                 <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body d-flex align-items-center gap-3">
-                        <div class="d-flex rounded-3 p-3 fs-4 bg-success-lighter text-success"><i class="fa fa-check-circle"></i></div>
+                    <div class="card-body d-flex flex-column flex-sm-row align-items-center text-center text-sm-start gap-2 gap-sm-3">
+                        <div class="d-flex flex-shrink-0 rounded-3 p-3 fs-4 bg-success-lighter text-success"><i class="fa fa-check-circle"></i></div>
                         <div>
                             <div class="fs-3 fw-bold">{{ $disponibles }}</div>
                             <div class="text-muted">Disponibles</div>
@@ -125,8 +129,8 @@
             </div>
             <div class="col-6 col-xl-3">
                 <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body d-flex align-items-center gap-3">
-                        <div class="d-flex rounded-3 p-3 fs-4 bg-danger-lighter text-danger"><i class="fa fa-ban"></i></div>
+                    <div class="card-body d-flex flex-column flex-sm-row align-items-center text-center text-sm-start gap-2 gap-sm-3">
+                        <div class="d-flex flex-shrink-0 rounded-3 p-3 fs-4 bg-danger-lighter text-danger"><i class="fa fa-ban"></i></div>
                         <div>
                             <div class="fs-3 fw-bold">{{ $indisponibles }}</div>
                             <div class="text-muted">Indisponibles</div>
@@ -136,8 +140,8 @@
             </div>
             <div class="col-6 col-xl-3">
                 <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body d-flex align-items-center gap-3">
-                        <div class="d-flex rounded-3 p-3 fs-4 bg-warning-lighter text-warning"><i class="fa fa-image"></i></div>
+                    <div class="card-body d-flex flex-column flex-sm-row align-items-center text-center text-sm-start gap-2 gap-sm-3">
+                        <div class="d-flex flex-shrink-0 rounded-3 p-3 fs-4 bg-warning-lighter text-warning"><i class="fa fa-image"></i></div>
                         <div>
                             <div class="fs-3 fw-bold">{{ $sansPhoto }}</div>
                             <div class="text-muted">Sans photo</div>
@@ -153,20 +157,23 @@
                 <h3 class="block-title">Liste des médicaments</h3>
                 <div class="block-options">
                     <a href="{{ route('medicaments.create') }}" class="btn btn-sm btn-primary">
-                        <i class="fa fa-plus me-1"></i> Ajouter un médicament
+                        <i class="fa fa-plus me-1"></i>
+                        <span class="d-none d-sm-inline">Ajouter un médicament</span>
+                        <span class="d-sm-none">Ajouter</span>
                     </a>
                 </div>
             </div>
             <div class="block-content block-content-full overflow-x-auto">
-                <table class="table table-hover table-vcenter js-dataTable-full">
+                {{-- data-priority : plus le nombre est petit, plus la colonne reste visible longtemps --}}
+                <table class="table table-hover table-vcenter js-dataTable-full dt-responsive w-100">
                     <thead>
                         <tr>
-                            <th>Médicament</th>
-                            <th class="text-center">Référence</th>
-                            <th class="text-center">Dosage</th>
-                            <th>Description</th>
-                            <th class="text-center">Statut</th>
-                            <th class="text-center" data-orderable="false" data-searchable="false">Actions</th>
+                            <th data-priority="1">Médicament</th>
+                            <th class="text-center" data-priority="5">Référence</th>
+                            <th class="text-center" data-priority="4">Dosage</th>
+                            <th data-priority="6">Description</th>
+                            <th class="text-center" data-priority="3">Statut</th>
+                            <th class="text-center" data-priority="2" data-orderable="false" data-searchable="false">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -208,13 +215,15 @@
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    <div class="d-flex justify-content-center gap-1">
+                                    <div class="d-flex flex-wrap justify-content-center gap-1">
                                         <a href="{{ route('medicaments.show', $medicament->id) }}"
-                                            class="btn btn-sm btn-alt-info" data-bs-toggle="tooltip" title="Détail">
+                                            class="btn btn-sm btn-alt-info" data-bs-toggle="tooltip" title="Détail"
+                                            aria-label="Détail">
                                             <i class="fa fa-fw fa-eye"></i>
                                         </a>
                                         <a href="{{ route('medicaments.edit', $medicament->id) }}"
-                                            class="btn btn-sm btn-alt-success" data-bs-toggle="tooltip" title="Modifier">
+                                            class="btn btn-sm btn-alt-success" data-bs-toggle="tooltip" title="Modifier"
+                                            aria-label="Modifier">
                                             <i class="fa fa-fw fa-edit"></i>
                                         </a>
 
@@ -223,7 +232,8 @@
                                                 @csrf
                                                 @method('PATCH')
                                                 <button type="submit" class="btn btn-sm btn-alt-secondary"
-                                                    data-bs-toggle="tooltip" title="{{ $dispo ? 'Marquer indisponible' : 'Marquer disponible' }}">
+                                                    data-bs-toggle="tooltip" title="{{ $dispo ? 'Marquer indisponible' : 'Marquer disponible' }}"
+                                                    aria-label="{{ $dispo ? 'Marquer indisponible' : 'Marquer disponible' }}">
                                                     <i class="fa fa-fw {{ $dispo ? 'fa-toggle-on' : 'fa-toggle-off' }}"></i>
                                                 </button>
                                             </form>
@@ -235,7 +245,7 @@
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-sm btn-alt-danger"
-                                                    data-bs-toggle="tooltip" title="Supprimer">
+                                                    data-bs-toggle="tooltip" title="Supprimer" aria-label="Supprimer">
                                                     <i class="fa fa-fw fa-trash"></i>
                                                 </button>
                                             </form>
