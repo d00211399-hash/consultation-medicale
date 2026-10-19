@@ -45,15 +45,15 @@
         .dash-urgence {
             border-radius: .75rem;
             background: #fff;
-            border-left: 6px solid #dc3545;
+            border-left: 6px solid #35dc62;
         }
         .dash-pulse {
             width: 12px; height: 12px; border-radius: 50%;
-            background: #dc3545; display: inline-block;
+            background: #35dc64; display: inline-block;
             animation: dash-pulse 1.8s infinite;
         }
         @keyframes dash-pulse {
-            0%   { box-shadow: 0 0 0 0 rgba(220, 53, 69, .55); }
+            0%   { box-shadow: 0 0 0 0 rgba(53, 220, 95, 0.55); }
             70%  { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
             100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
         }
