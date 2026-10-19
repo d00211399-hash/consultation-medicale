@@ -9,6 +9,41 @@
     <link rel="stylesheet" href="{{ asset('assets/js/plugins/datatables-responsive-bs5/css/responsive.bootstrap5.min.css') }}">
     <link rel="stylesheet" id="css-main" href="{{ asset('assets/css/oneui.min.css') }}">
     <script src="{{ asset('assets/js/setTheme.js') }}"></script>
+
+    <style>
+        /* ---------- Statistiques ---------- */
+        .med-stat .card-body { min-width: 0; }
+        .med-stat .med-icon { flex-shrink: 0; }
+        .med-stat .fs-3 { font-size: clamp(1.25rem, 3vw, 1.75rem) !important; }
+
+        /* Téléphone : icône au-dessus du chiffre pour que les libellés tiennent */
+        @media (max-width: 575.98px) {
+            .med-stat .card-body {
+                flex-direction: column;
+                text-align: center;
+                gap: .5rem !important;
+            }
+            .med-stat .med-icon { padding: .6rem !important; font-size: 1.1rem !important; }
+            .med-stat .text-muted { font-size: .8rem; }
+        }
+
+        /* ---------- Boutons d'action (jusqu'à 5 par ligne) ---------- */
+        .med-actions { flex-wrap: wrap; }
+        /* Écrans tactiles : cibles plus grandes pour le doigt */
+        @media (pointer: coarse) {
+            .med-actions .btn { min-width: 40px; min-height: 40px; }
+        }
+
+        /* ---------- Tableau DataTables sur petit écran ---------- */
+        @media (max-width: 575.98px) {
+            .dt-search, .dataTables_filter { width: 100%; }
+            .dt-search input, .dataTables_filter input {
+                width: 100% !important;
+                margin-left: 0 !important;
+            }
+            .pagination { flex-wrap: wrap; justify-content: center; }
+        }
+    </style>
 @endsection
 
 @section('js')
@@ -26,9 +61,12 @@
     <script src="{{ asset('assets/js/plugins/datatables-buttons/buttons.print.min.js') }}"></script>
     <script src="{{ asset('assets/js/plugins/datatables-buttons/buttons.html5.min.js') }}"></script>
 
-    <!-- Traduction française de DataTables (avant l'initialisation de la page) -->
+    <!-- Réglages DataTables : traduction française + tableau adaptatif (avant l'initialisation de la page) -->
     <script>
         $.extend(true, $.fn.dataTable.defaults, {
+            // Les colonnes les moins importantes passent dans une ligne de détail sur petit écran
+            responsive: true,
+            autoWidth: false,
             language: {
                 search: '',
                 searchPlaceholder: 'Rechercher un médecin…',
@@ -86,12 +124,12 @@
             </div>
         @endif
 
-        {{-- Statistiques --}}
+        {{-- Statistiques : 2 colonnes sur téléphone, 4 sur grand écran --}}
         <div class="row g-3 mb-4">
             <div class="col-6 col-xl-3">
-                <div class="card border-0 shadow-sm h-100">
+                <div class="card med-stat border-0 shadow-sm h-100">
                     <div class="card-body d-flex align-items-center gap-3">
-                        <div class="d-flex rounded-3 p-3 fs-4 bg-primary-lighter text-primary"><i class="fa fa-user-md"></i></div>
+                        <div class="med-icon d-flex rounded-3 p-3 fs-4 bg-primary-lighter text-primary"><i class="fa fa-user-md"></i></div>
                         <div>
                             <div class="fs-3 fw-bold">{{ $total }}</div>
                             <div class="text-muted">Médecins</div>
@@ -100,9 +138,9 @@
                 </div>
             </div>
             <div class="col-6 col-xl-3">
-                <div class="card border-0 shadow-sm h-100">
+                <div class="card med-stat border-0 shadow-sm h-100">
                     <div class="card-body d-flex align-items-center gap-3">
-                        <div class="d-flex rounded-3 p-3 fs-4 bg-success-lighter text-success"><i class="fa fa-check-circle"></i></div>
+                        <div class="med-icon d-flex rounded-3 p-3 fs-4 bg-success-lighter text-success"><i class="fa fa-check-circle"></i></div>
                         <div>
                             <div class="fs-3 fw-bold">{{ $actifs }}</div>
                             <div class="text-muted">Actifs</div>
@@ -111,9 +149,9 @@
                 </div>
             </div>
             <div class="col-6 col-xl-3">
-                <div class="card border-0 shadow-sm h-100">
+                <div class="card med-stat border-0 shadow-sm h-100">
                     <div class="card-body d-flex align-items-center gap-3">
-                        <div class="d-flex rounded-3 p-3 fs-4 bg-danger-lighter text-danger"><i class="fa fa-ban"></i></div>
+                        <div class="med-icon d-flex rounded-3 p-3 fs-4 bg-danger-lighter text-danger"><i class="fa fa-ban"></i></div>
                         <div>
                             <div class="fs-3 fw-bold">{{ $inactifs }}</div>
                             <div class="text-muted">Inactifs</div>
@@ -122,9 +160,9 @@
                 </div>
             </div>
             <div class="col-6 col-xl-3">
-                <div class="card border-0 shadow-sm h-100">
+                <div class="card med-stat border-0 shadow-sm h-100">
                     <div class="card-body d-flex align-items-center gap-3">
-                        <div class="d-flex rounded-3 p-3 fs-4 bg-warning-lighter text-warning"><i class="fa fa-stethoscope"></i></div>
+                        <div class="med-icon d-flex rounded-3 p-3 fs-4 bg-warning-lighter text-warning"><i class="fa fa-stethoscope"></i></div>
                         <div>
                             <div class="fs-3 fw-bold">{{ $nbSpecial }}</div>
                             <div class="text-muted">Spécialités</div>
@@ -142,24 +180,25 @@
                     <span class="fw-semibold">Identifiants à transmettre</span>
                     <span class="badge rounded-pill text-bg-warning ms-auto">{{ $comptesEnAttente->count() }}</span>
                 </div>
-                <div class="table-responsive row">
+                {{-- La classe "row" a été retirée : elle cassait la mise en page (marges négatives) --}}
+                <div class="table-responsive">
                     <table class="table table-sm align-middle mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th class="col-3">Nom</th>
-                                <th class="col-3">Email</th>
-                                <th class="col-3">Mot de passe temporaire</th>
+                                <th>Nom</th>
+                                <th>Email</th>
+                                <th>Mot de passe temporaire</th>
                                 <th class="text-end">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($comptesEnAttente as $compte)
                                 <tr>
-                                    <td>{{ $compte->medecin->nom ?? 'N/A' }}</td>
-                                    <td>{{ $compte->email }}</td>
+                                    <td class="text-nowrap">{{ $compte->medecin->nom ?? 'N/A' }}</td>
+                                    <td class="text-break">{{ $compte->email }}</td>
                                     <td><code>{{ $compte->temp_password }}</code></td>
                                     <td class="text-end">
-                                        <button type="button" class="btn btn-sm btn-alt-secondary"
+                                        <button type="button" class="btn btn-sm btn-alt-secondary text-nowrap"
                                             data-texte="Email : {{ $compte->email }}&#10;Mot de passe : {{ $compte->temp_password }}"
                                             onclick="navigator.clipboard.writeText(this.dataset.texte).then(() => { this.innerHTML = '<i class=&quot;fa fa-check me-1&quot;></i> Copié'; })">
                                             <i class="fa fa-copy me-1"></i> Copier
@@ -179,20 +218,23 @@
                 <h3 class="block-title">Liste des médecins</h3>
                 <div class="block-options">
                     <a href="{{ route('medecins.create') }}" class="btn btn-sm btn-primary">
-                        <i class="fa fa-plus me-1"></i> Ajouter un médecin
+                        <i class="fa fa-plus me-1"></i>
+                        <span class="d-none d-sm-inline">Ajouter un médecin</span>
+                        <span class="d-sm-none">Ajouter</span>
                     </a>
                 </div>
             </div>
             <div class="block-content block-content-full overflow-x-auto">
-                <table class="table table-hover table-vcenter js-dataTable-full">
+                {{-- data-priority : plus le nombre est petit, plus la colonne reste visible longtemps --}}
+                <table class="table table-hover table-vcenter js-dataTable-full dt-responsive w-100">
                     <thead>
                         <tr>
-                            <th class="text-center">Matricule</th>
-                            <th>Médecin</th>
-                            <th>Spécialité</th>
-                            <th>Téléphone</th>
-                            <th class="text-center">Statut</th>
-                            <th class="text-center" data-orderable="false" data-searchable="false">Actions</th>
+                            <th class="text-center" data-priority="6">Matricule</th>
+                            <th data-priority="1">Médecin</th>
+                            <th data-priority="4">Spécialité</th>
+                            <th data-priority="5">Téléphone</th>
+                            <th class="text-center" data-priority="3">Statut</th>
+                            <th class="text-center" data-priority="2" data-orderable="false" data-searchable="false">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -204,7 +246,7 @@
                                 </td>
                                 <td>
                                     <div class="fw-semibold">Dr {{ $medecin->nom }} {{ $medecin->prenom }}</div>
-                                    <a class="fs-sm text-muted text-decoration-none" href="mailto:{{ $medecin->email }}">
+                                    <a class="fs-sm text-muted text-decoration-none text-break" href="mailto:{{ $medecin->email }}">
                                         {{ $medecin->email }}
                                     </a>
                                 </td>
@@ -228,13 +270,15 @@
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    <div class="d-flex justify-content-center gap-1">
+                                    <div class="med-actions d-flex justify-content-center gap-1">
                                         <a href="{{ route('medecins.show', $medecin->matricule) }}"
-                                            class="btn btn-sm btn-alt-info" data-bs-toggle="tooltip" title="Détail">
+                                            class="btn btn-sm btn-alt-info" data-bs-toggle="tooltip" title="Détail"
+                                            aria-label="Détail">
                                             <i class="fa fa-fw fa-eye"></i>
                                         </a>
                                         <a href="{{ route('medecins.edit', $medecin->matricule) }}"
-                                            class="btn btn-sm btn-alt-success" data-bs-toggle="tooltip" title="Modifier">
+                                            class="btn btn-sm btn-alt-success" data-bs-toggle="tooltip" title="Modifier"
+                                            aria-label="Modifier">
                                             <i class="fa fa-fw fa-edit"></i>
                                         </a>
 
@@ -243,7 +287,8 @@
                                                 onsubmit="return confirm('Générer un nouveau mot de passe pour ce compte ?')">
                                                 @csrf
                                                 <button type="submit" class="btn btn-sm btn-alt-warning"
-                                                    data-bs-toggle="tooltip" title="Réinitialiser le mot de passe">
+                                                    data-bs-toggle="tooltip" title="Réinitialiser le mot de passe"
+                                                    aria-label="Réinitialiser le mot de passe">
                                                     <i class="fa fa-fw fa-key"></i>
                                                 </button>
                                             </form>
@@ -253,7 +298,8 @@
                                             @csrf
                                             @method('PATCH')
                                             <button type="submit" class="btn btn-sm btn-alt-secondary"
-                                                data-bs-toggle="tooltip" title="{{ $estActif ? 'Désactiver' : 'Activer' }}">
+                                                data-bs-toggle="tooltip" title="{{ $estActif ? 'Désactiver' : 'Activer' }}"
+                                                aria-label="{{ $estActif ? 'Désactiver' : 'Activer' }}">
                                                 <i class="fa fa-fw {{ $estActif ? 'fa-toggle-on' : 'fa-toggle-off' }}"></i>
                                             </button>
                                         </form>
@@ -263,7 +309,7 @@
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-alt-danger"
-                                                data-bs-toggle="tooltip" title="Supprimer">
+                                                data-bs-toggle="tooltip" title="Supprimer" aria-label="Supprimer">
                                                 <i class="fa fa-fw fa-trash"></i>
                                             </button>
                                         </form>

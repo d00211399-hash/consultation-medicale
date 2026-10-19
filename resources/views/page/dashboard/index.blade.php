@@ -276,54 +276,6 @@
                 </div>
             </div>
         @endisset
-
-        <div class="{{ isset($consultationsParMois) ? 'col-12 col-xl-6' : 'col-12' }}">
-            <div class="block block-rounded h-100 mb-0">
-                <div class="block-header block-header-default">
-                    <h3 class="block-title">Dernières consultations</h3>
-                </div>
-                <div class="block-content p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover table-vcenter mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Patient</th>
-                                    {{-- Colonne Médecin masquée sur téléphone (le nom passe sous le patient) --}}
-                                    <th class="d-none d-md-table-cell">Médecin</th>
-                                    <th class="text-end">Statut</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse(($dernieresConsultations ?? collect()) as $c)
-                                    <tr>
-                                        <td class="text-nowrap">
-                                            {{ \Carbon\Carbon::parse($c->date_consultation)->format('d/m/Y') }}
-                                        </td>
-                                        <td>
-                                            {{ $c->patient->nom ?? '' }} {{ $c->patient->prenom ?? '' }}
-                                            <div class="d-md-none small text-muted">Dr {{ $c->medecin->nom ?? '—' }}</div>
-                                        </td>
-                                        <td class="d-none d-md-table-cell">Dr {{ $c->medecin->nom ?? '—' }}</td>
-                                        <td class="text-end">
-                                            <span class="badge rounded-pill bg-{{ $statuts[mb_strtolower($c->statut)] ?? 'secondary' }}">
-                                                {{ ucfirst($c->statut) }}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="4" class="text-center text-muted py-4">
-                                            Aucune consultation récente.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
 </div>
