@@ -10,13 +10,16 @@
     <script src="{{ asset('assets/js/setTheme.js') }}"></script>
 
     <style>
+        /* ---------- Bannière d'accueil ---------- */
         .dash-hero {
             position: relative;
-            min-height: 280px;
+            min-height: clamp(200px, 32vw, 280px);
             border-radius: .75rem;
             overflow: hidden;
             background: #0b3b44 url('{{ asset('image/images.jpg') }}') center / cover no-repeat;
             color: #fff;
+            display: flex;
+            align-items: center;
         }
         .dash-hero::before {
             content: "";
@@ -26,11 +29,19 @@
         }
         .dash-hero-body {
             position: relative;
-            padding: 2.5rem 2rem;
+            width: 100%;
+            padding: clamp(1.25rem, 4vw, 2.5rem) clamp(1rem, 4vw, 2rem);
             max-width: 620px;
         }
-        .dash-hero h1 { font-size: 2rem; font-weight: 700; }
+        .dash-hero h1 { font-size: clamp(1.5rem, 4.5vw, 2rem); font-weight: 700; }
+        .dash-hero p  { font-size: clamp(1rem, 2.5vw, 1.25rem); }
 
+        /* Sur petit écran le texte couvre toute la largeur : on fonce l'image */
+        @media (max-width: 767.98px) {
+            .dash-hero::before { background: rgba(8, 47, 56, .82); }
+        }
+
+        /* ---------- Alerte (inchangé) ---------- */
         .dash-urgence {
             border-radius: .75rem;
             background: #fff;
@@ -46,16 +57,30 @@
             70%  { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
             100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
         }
-        @media (prefers-reduced-motion: reduce) {
-            .dash-pulse { animation: none; }
-        }
 
+        /* ---------- Statistiques ---------- */
         .dash-stat { border-radius: .75rem; border: 0; }
+        .dash-stat .block-content { min-width: 0; }
         .dash-stat .icon-wrap {
             width: 54px; height: 54px; border-radius: .75rem;
             display: flex; align-items: center; justify-content: center;
             font-size: 1.5rem;
+            flex-shrink: 0;
         }
+        .dash-stat .fs-3 { font-size: clamp(1.25rem, 3vw, 1.75rem) !important; }
+
+        /* Téléphone : icône au-dessus du chiffre, pour que les libellés tiennent */
+        @media (max-width: 575.98px) {
+            .dash-stat .block-content {
+                flex-direction: column;
+                text-align: center;
+                gap: .5rem !important;
+            }
+            .dash-stat .icon-wrap { width: 44px; height: 44px; font-size: 1.25rem; }
+            .dash-stat .text-muted { font-size: .8rem; }
+        }
+
+        /* ---------- Accès rapides ---------- */
         .dash-action {
             border-radius: .75rem;
             border: 1px solid rgba(0, 0, 0, .06);
@@ -63,10 +88,27 @@
             text-decoration: none;
             color: inherit;
         }
-        .dash-action:hover {
-            border-color: #0f766e;
-            transform: translateY(-2px);
-            color: inherit;
+        .dash-action:focus-visible { outline: 3px solid #0f766e; outline-offset: 2px; }
+        .dash-action small { display: block; }
+
+        /* L'effet de survol n'a de sens qu'avec une souris */
+        @media (hover: hover) {
+            .dash-action:hover {
+                border-color: #0f766e;
+                transform: translateY(-2px);
+                color: inherit;
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .dash-pulse { animation: none; }
+            .dash-action { transition: none; }
+            .dash-action:hover { transform: none; }
+        }
+
+        /* ---------- Graphique ---------- */
+        .dash-chart {
+            position: relative;
+            height: clamp(220px, 45vw, 300px);
         }
     </style>
 @endsection
@@ -89,9 +131,13 @@
                     }]
                 },
                 options: {
+                    responsive: true,
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+                    scales: {
+                        x: { ticks: { maxRotation: 0, autoSkip: true } },
+                        y: { beginAtZero: true, ticks: { precision: 0 } }
+                    }
                 }
             });
         </script>
@@ -116,13 +162,17 @@
     {{-- Bannière d'accueil --}}
     <div class="dash-hero mb-4">
         <div class="dash-hero-body">
-            <h1 class="text-dark mb-2">Salut{{ auth()->check() ? ', ' . auth()->user()->name : '' }}</h1>
-            <p class="fs-5 mb-4 opacity-90">Suivez vos patients, vos médecins et vos consultations depuis un seul endroit.</p>
-            <a href="{{ $lien('consultations.index') }}" class="btn btn-light me-2">Voir les consultations</a>
-            <a href="{{ $lien('patients.index') }}" class="btn btn-outline-light">Liste des patients</a>
+            <h1 class="text-white mb-2">Salut{{ auth()->check() ? ', ' . auth()->user()->name : '' }}</h1>
+            <p class="mb-4 opacity-90">Suivez vos patients, vos médecins et vos consultations depuis un seul endroit.</p>
+            {{-- Boutons empilés sur téléphone, côte à côte dès les petites tablettes --}}
+            <div class="d-grid d-sm-flex gap-2">
+                <a href="{{ $lien('consultations.index') }}" class="btn btn-light">Voir les consultations</a>
+                <a href="{{ $lien('patients.index') }}" class="btn btn-outline-light">Liste des patients</a>
+            </div>
         </div>
     </div>
-    {{-- Statistiques --}}
+
+    {{-- Statistiques : 2 colonnes sur téléphone, 4 sur grand écran --}}
     <div class="row g-3 mb-4">
         <div class="col-6 col-xl-3">
             <div class="block block-rounded dash-stat h-100 mb-0">
@@ -170,38 +220,38 @@
         </div>
     </div>
 
-    {{-- Accès rapides --}}
+    {{-- Accès rapides : 2 colonnes sur téléphone, 4 sur grand écran --}}
     <div class="row g-3 mb-4">
-        <div class="col-sm-6 col-xl-3">
+        <div class="col-6 col-xl-3">
             <a href="{{ $lien('patients.index') }}" class="dash-action block block-rounded mb-0 h-100">
-                <div class="block-content text-center py-4">
+                <div class="block-content text-center py-3 py-md-4">
                     <i class="fa fa-2x fa-user-injured text-primary mb-2"></i>
                     <p class="fw-semibold mb-0">Patients</p>
                     <small class="text-muted">Dossiers et coordonnées</small>
                 </div>
             </a>
         </div>
-        <div class="col-sm-6 col-xl-3">
+        <div class="col-6 col-xl-3">
             <a href="{{ $lien('medecins.index') }}" class="dash-action block block-rounded mb-0 h-100">
-                <div class="block-content text-center py-4">
+                <div class="block-content text-center py-3 py-md-4">
                     <i class="fa fa-2x fa-stethoscope text-success mb-2"></i>
                     <p class="fw-semibold mb-0">Médecins</p>
                     <small class="text-muted">Équipe et spécialités</small>
                 </div>
             </a>
         </div>
-        <div class="col-sm-6 col-xl-3">
+        <div class="col-6 col-xl-3">
             <a href="{{ $lien('consultations.index') }}" class="dash-action block block-rounded mb-0 h-100">
-                <div class="block-content text-center py-4">
+                <div class="block-content text-center py-3 py-md-4">
                     <i class="fa fa-2x fa-notes-medical text-warning mb-2"></i>
                     <p class="fw-semibold mb-0">Consultations</p>
                     <small class="text-muted">Historique et suivi</small>
                 </div>
             </a>
         </div>
-        <div class="col-sm-6 col-xl-3">
+        <div class="col-6 col-xl-3">
             <a href="{{ $lien('consultations.create') }}" class="dash-action block block-rounded mb-0 h-100">
-                <div class="block-content text-center py-4">
+                <div class="block-content text-center py-3 py-md-4">
                     <i class="fa fa-2x fa-plus-circle text-danger mb-2"></i>
                     <p class="fw-semibold mb-0">Nouvelle consultation</p>
                     <small class="text-muted">Planifier un rendez-vous</small>
@@ -210,22 +260,24 @@
         </div>
     </div>
 
-    {{-- Graphique + dernières consultations --}}
+    {{-- Graphique + dernières consultations : empilés jusqu'aux grands écrans --}}
     <div class="row g-3">
         @isset($consultationsParMois)
-            <div class="col-lg-6">
+            <div class="col-12 col-xl-6">
                 <div class="block block-rounded h-100 mb-0">
                     <div class="block-header block-header-default">
                         <h3 class="block-title">Consultations par mois</h3>
                     </div>
-                    <div class="block-content block-content-full" style="height: 300px;">
-                        <canvas id="chartConsultations"></canvas>
+                    <div class="block-content block-content-full">
+                        <div class="dash-chart">
+                            <canvas id="chartConsultations"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
         @endisset
 
-        <div class="{{ isset($consultationsParMois) ? 'col-lg-6' : 'col-12' }}">
+        <div class="{{ isset($consultationsParMois) ? 'col-12 col-xl-6' : 'col-12' }}">
             <div class="block block-rounded h-100 mb-0">
                 <div class="block-header block-header-default">
                     <h3 class="block-title">Dernières consultations</h3>
@@ -237,7 +289,8 @@
                                 <tr>
                                     <th>Date</th>
                                     <th>Patient</th>
-                                    <th>Médecin</th>
+                                    {{-- Colonne Médecin masquée sur téléphone (le nom passe sous le patient) --}}
+                                    <th class="d-none d-md-table-cell">Médecin</th>
                                     <th class="text-end">Statut</th>
                                 </tr>
                             </thead>
@@ -247,8 +300,11 @@
                                         <td class="text-nowrap">
                                             {{ \Carbon\Carbon::parse($c->date_consultation)->format('d/m/Y') }}
                                         </td>
-                                        <td>{{ $c->patient->nom ?? '' }} {{ $c->patient->prenom ?? '' }}</td>
-                                        <td>Dr {{ $c->medecin->nom ?? '—' }}</td>
+                                        <td>
+                                            {{ $c->patient->nom ?? '' }} {{ $c->patient->prenom ?? '' }}
+                                            <div class="d-md-none small text-muted">Dr {{ $c->medecin->nom ?? '—' }}</div>
+                                        </td>
+                                        <td class="d-none d-md-table-cell">Dr {{ $c->medecin->nom ?? '—' }}</td>
                                         <td class="text-end">
                                             <span class="badge rounded-pill bg-{{ $statuts[mb_strtolower($c->statut)] ?? 'secondary' }}">
                                                 {{ ucfirst($c->statut) }}
